@@ -2,6 +2,7 @@
 
 // set up ======================================================================
 // get all the tools we need
+require('dotenv').config();
 var express  = require('express');
 var app      = express();
 var port     = process.env.PORT || 8080;
@@ -23,6 +24,7 @@ var db
 mongoose.connect(configDB.url, (err, database) => {
   if (err) return console.log(err)
   db = database
+console.log('MongoDB is connected')
   require('./app/routes.js')(app, passport, db);
 }); // connect to our database
 

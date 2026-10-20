@@ -38,18 +38,38 @@ module.exports = function(app, passport, db) {
 
     app.put('/messages', (req, res) => {
       db.collection('messages')
+
       .findOneAndUpdate({name: req.body.name, msg: req.body.msg}, {
-        $set: {
-          thumbUp:req.body.thumbUp + 1
+        $inc: {
+          thumbUp: 1,
+          
         }
       }, {
         sort: {_id: -1},
-        upsert: true
+        upsert: false
       }, (err, result) => {
         if (err) return res.send(err)
         res.send(result)
       })
-    })
+    });
+
+        app.put('/messages/thumbs-down', (req, res) => {
+      db.collection('messages')
+
+      .findOneAndUpdate({name: req.body.name, msg: req.body.msg}, {
+        $inc: {
+          thumbDown: 1
+        }
+      }, {
+        sort: {_id: -1},
+        upsert: false
+      }, (err, result) => {
+        if (err) return res.send(err)
+        res.send(result)
+      })
+    });
+
+
 
     app.delete('/messages', (req, res) => {
       db.collection('messages').findOneAndDelete({name: req.body.name, msg: req.body.msg}, (err, result) => {
@@ -110,6 +130,7 @@ module.exports = function(app, passport, db) {
 
 // route middleware to ensure user is logged in
 function isLoggedIn(req, res, next) {
+   req.isAuthenticated()
     if (req.isAuthenticated())
         return next();
 
