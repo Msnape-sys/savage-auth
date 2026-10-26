@@ -1,11 +1,10 @@
 // config/passport.js
-
+/* Passport is a npm package module installed to authenticate users*/
 // load all the things we need
-var LocalStrategy   = require('passport-local').Strategy;
+var LocalStrategy   = require('passport-local').Strategy; // the strategy used to authenticate users that my app use 
 
 // load up the user model
-var User       		= require('../app/models/user');
-
+var User       		= require('../app/models/user'); // loads the instructions to find, create, and store users 
 // expose this function to our app using module.exports
 module.exports = function(passport) {
 
@@ -14,13 +13,13 @@ module.exports = function(passport) {
     // =========================================================================
     // required for persistent login sessions
     // passport needs ability to serialize and unserialize users out of session
-
-    // used to serialize the user for the session
+       
+    // used to serialize the user for the session- decides what tiny piece is stored in the session (user.id)
     passport.serializeUser(function(user, done) {
         done(null, user.id);
     });
 
-    // used to deserialize the user
+    // used to deserialize the user--- using user.id to fetch the full user 
     passport.deserializeUser(function(id, done) {
         User.findById(id, function(err, user) {
             done(err, user);
@@ -33,24 +32,24 @@ module.exports = function(passport) {
     // we are using named strategies since we have one for login and one for signup
 	// by default, if there was no name, it would just be called 'local'
 
-    passport.use('local-signup', new LocalStrategy({
+    passport.use('local-signup', new LocalStrategy({ // creating a new strategy to create a sign-up (recipe for sign-up)
         // by default, local strategy uses username and password, we will override with email
         usernameField : 'email',
         passwordField : 'password',
         passReqToCallback : true // allows us to pass back the entire request to the callback
     },
-    function(req, email, password, done) {
+    function(req, email, password, done) { //req = the whole http request 
 
 		// find a user whose email is the same as the forms email
 		// we are checking to see if the user trying to login already exists
         User.findOne({ 'local.email' :  email }, function(err, user) {
             // if there are any errors, return the error
             if (err)
-                return done(err);
+                return done(err); // done = callback that passport gives us, we call it when we're done checking, the report the result back to passport 
 
             // check to see if theres already a user with that email
             if (user) {
-                return done(null, false, req.flash('signupMessage', 'That email is already taken.'));
+                return done(null, false, req.flash('signupMessage', 'That email is already taken.')); // done expects an error, passing null lets passport know there was no errror, false means dont sign them up 
             } else {
 
 				// if there is no user with that email
@@ -61,11 +60,11 @@ module.exports = function(passport) {
                 newUser.local.email    = email;
                 newUser.local.password = newUser.generateHash(password); // use the generateHash function in our user model
 
-				// save the user
+				// save the user to mongo DB
                 newUser.save(function(err) {
                     if (err)
                         throw err;
-                    return done(null, newUser);
+                    return done(null, newUser); // there were no errors, here is our new user
                 });
             }
 

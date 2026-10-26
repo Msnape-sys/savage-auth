@@ -8,7 +8,7 @@ module.exports = function(app, passport, db) {
     });
 
     // PROFILE SECTION =========================
-    app.get('/profile', isLoggedIn, function(req, res) {
+    app.get('/profile', isLoggedIn, function(req, res) { // isLogged in is a gaurd, stops people who arent logged in from seeing profile page
         db.collection('messages').find().toArray((err, result) => {
           if (err) return console.log(err)
           res.render('profile.ejs', {
@@ -35,7 +35,7 @@ module.exports = function(app, passport, db) {
         res.redirect('/profile')
       })
     })
-
+   // thumbs up route 
     app.put('/messages', (req, res) => {
       db.collection('messages')
 
@@ -45,7 +45,7 @@ module.exports = function(app, passport, db) {
           
         }
       }, {
-        sort: {_id: -1},
+        sort: {_id: -1}, // pick the document with the highest _id (the newest one) if 2 have matching messages, choose the newest 
         upsert: false
       }, (err, result) => {
         if (err) return res.send(err)
@@ -129,8 +129,8 @@ module.exports = function(app, passport, db) {
 };
 
 // route middleware to ensure user is logged in
-function isLoggedIn(req, res, next) {
-   req.isAuthenticated()
+function isLoggedIn(req, res, next) { // next = handoff function , means everything is good to pass the user to the profile page 
+   req.isAuthenticated() // asks passport of user is logged in. returns true / false, true = call 'next()', false= redirect('/')
     if (req.isAuthenticated())
         return next();
 
